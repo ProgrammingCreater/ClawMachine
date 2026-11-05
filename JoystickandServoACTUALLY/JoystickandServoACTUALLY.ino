@@ -53,13 +53,13 @@ void loop() {
   if (xValue < -DEADZONE) {
     // Move LEFT
     digitalWrite(enXPin, LOW);        // Enable motor
-    digitalWrite(dirPin, LOW);       // Set direction
+    digitalWrite(dirXPin, LOW);       // Set direction
     stepMotor(map(512 - xValue, 0, 512, 1, 10));  // More deflection = more steps
 
   } else if (xValue > DEADZONE) {
     // Move RIGHT
     digitalWrite(enXPin, LOW);        // Enable motor
-    digitalWrite(dirPin, HIGH);      // Set direction
+    digitalWrite(dirXPin, HIGH);      // Set direction
     stepMotor(map(xValue - 512, 0, 511, 1, 10));
 
   } else {
@@ -93,9 +93,9 @@ void loop() {
 
 void stepMotor(int steps) {
   for (int i = 0; i < steps; i++) {
-    digitalWrite(stepPin, HIGH);
+    digitalWrite(stepXPin, HIGH);
     delayMicroseconds(800);
-    digitalWrite(stepPin, LOW);
+    digitalWrite(stepXPin, LOW);
     delayMicroseconds(800);
   }
 }
