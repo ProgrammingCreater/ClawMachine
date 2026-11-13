@@ -1,7 +1,14 @@
-#define stepPin 3
-#define dirPin 5
-#define enPin 8       // A4988 Enable pin
+#define stepXPin 3
+#define stepYPin 4
+
+#define dirXPin 5
+#define dirYPin 6
+
+#define enXPin 8       // A4988 Enable pin
+#define enYPin 9
+
 #define joyX A0       // Joystick X-axis
+#define joyY A1
 
 #include <Servo.h>
 
@@ -19,12 +26,19 @@ bool lastButtonState = HIGH;
 
 
 void setup() {
-  pinMode(stepPin, OUTPUT);
-  pinMode(dirPin, OUTPUT);
-  pinMode(enPin, OUTPUT);
-  pinMode(joyX, INPUT);
+  pinMode(stepXPin, OUTPUT);
+  pinMode(dirXPin, OUTPUT);
+  pinMode(enXPin, OUTPUT);
 
-  digitalWrite(enPin, LOW); // Enable motor outputs at startup
+  pinMode(stepYPin, OUTPUT);
+  pinMode(dirYPin, OUTPUT);
+  pinMode(enYPin, OUTPUT);
+
+  pinMode(joyX, INPUT);
+  pinMode(joyY, INPUT);
+
+  digitalWrite(enXPin, LOW); // Enable motor outputs at startup
+  digitalWrite(enYPin, LOW);
 
   // Servo setup
   myServo.attach(servoPin);
@@ -39,23 +53,37 @@ void setup() {
 
 void loop() {
   int xValue = analogRead(joyX);
+  int yValue = analogRead(joyY);
 
   if (xValue < 400) {
     // Move LEFT
-    digitalWrite(enPin, LOW);        // Enable motor
-    digitalWrite(dirPin, LOW);       // Set direction
-    stepMotor(map(512 - xValue, 0, 512, 1, 10));  // More deflection = more steps
+    digitalWrite(enXPin, LOW);        // Enable motor
+    digitalWrite(dirXPin, LOW);       // Set direction
+    stepXMotor(map(512 - xValue, 0, 512, 1, 10));  // More deflection = more steps
 
   } else if (xValue > 624) {
     // Move RIGHT
-    digitalWrite(enPin, LOW);        // Enable motor
-    digitalWrite(dirPin, HIGH);      // Set direction
-    stepMotor(map(xValue - 512, 0, 511, 1, 10));
+    digitalWrite(enXPin, LOW);        // Enable motor
+    digitalWrite(dirXPin, HIGH);      // Set direction
+    stepXMotor(map(xValue - 512, 0, 511, 1, 10));
+  
+  } else if (yValue < 400) {
+    // Move UP
+    digitalWrite(enYPin, LOW);        // Enable motor
+    digitalWrite(dirYPin, LOW);      // Set direction
+    stepYMotor(map(512 - yValue, 0, 512, 1, 10));
+
+  } else if (yValue > 624) {
+    // Move DOWN
+    digitalWrite(enYPin, LOW);        // Enable motor
+    digitalWrite(dirYPin, HIGH);      // Set direction
+    stepYMotor(map(yValue - 512, 0, 511, 1, 10));
 
   } else {
     // Joystick centered — fully stop and disable motor
-    digitalWrite(enPin, HIGH);       // Disable motor outputs
-    delay(10);                       
+    digitalWrite(enXPin, HIGH);
+    digitalWrite(enYPin, HIGH);       // Disable motor outputs
+    delay(100);                       
   }
 
   //SERVO
@@ -81,11 +109,20 @@ void loop() {
   lastButtonState = currentButtonState;
 }
 
-void stepMotor(int steps) {
-  for (int i = 0; i < steps; i++) {
-    digitalWrite(stepPin, HIGH);
+void stepXMotor(int stepsX) {
+  for (int i = 0; i < stepsX; i++) {
+    digitalWrite(stepXPin, HIGH);
     delayMicroseconds(800);
-    digitalWrite(stepPin, LOW);
+    digitalWrite(stepXPin, LOW);
+    delayMicroseconds(800);
+  }
+}
+
+void stepYMotor(int stepsY) {
+  for (int i = 0; i < stepsY; i++) {
+    digitalWrite(stepYPin, HIGH);
+    delayMicroseconds(800);
+    digitalWrite(stepYPin, LOW);
     delayMicroseconds(800);
   }
 }
